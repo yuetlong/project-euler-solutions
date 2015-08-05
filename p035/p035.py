@@ -10,25 +10,21 @@ def primes_upto(limit):
                 is_prime[i] = False
     return is_prime
 
-def int_permu(n):
-    digits = [int(x) for x in str(n)]
-    length = len(digits)
-    power  = length - 1
-    perm   = itertools.permutations(digits)
-    return (sum (v * (10 ** (power - i)) for i, v in enumerate(item)) for item in perm)
-
-def is_circular_prime(n):
-    return all(map(lambda x: sieve[x], int_permu(n)))
+def all_rotations(n):
+    if (n < 10):
+        return [n]
+    lst = [n]
+    length = len(str(n))
+    for i in range(length - 1):
+        n = n % 10 * 10 ** (length - 1) + n // 10
+        lst.append(n)
+    return lst
 
 sieve = primes_upto(1000000)
+counter = 0
 
-print(list(filter(lambda x: sieve[x] == False, int_permu(19937))))
-
-counter = 1
-"""Counted two"""
-
-for i in range(3,1000,2):
-    if is_circular_prime(i):
+for i in range(1000000):
+    lst = all_rotations(i)
+    if all(map(lambda x: sieve[x], lst)):
         counter += 1
-
 print(counter)
