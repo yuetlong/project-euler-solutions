@@ -8,7 +8,5 @@ def solu(p):
             if a ** 2 + b ** 2 == c ** 2:
                 count += 1
     return count
-
-print(solu(120))
 answer = max(((p, solu(p)) for p in range (2,1000,2)), key = lambda x: x[1])
-print(answer)
+print(answer[0])

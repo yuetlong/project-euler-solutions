@@ -27,6 +27,3 @@ class Sieve(object):
         if i != len(self.primes) and self.primes[i] == n:
             return True
         return False
-
-    def getAllPrimes(self):
-        return self.primes
