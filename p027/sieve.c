@@ -1,7 +1,5 @@
 #include <string.h>
-#include <stdint.h>
 #include <stdlib.h>
-#include <stdio.h>
 
 char* fill_prime_sieve(size_t limit)
 {
@@ -10,7 +8,7 @@ char* fill_prime_sieve(size_t limit)
   char *sieve;
 
   sieve = malloc( sizeof(char) * limit);
-  
+
   sieve[0] = sieve[1] = 0;
 
   memset(sieve, 1, limit);

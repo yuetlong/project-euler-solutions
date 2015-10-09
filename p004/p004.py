@@ -7,7 +7,7 @@ def is_palindrome(string):
         return is_palindrome(string[1:-1])
     else:
         return False
-        
+
 answer = 0
 
 for number1 in range(100,999):

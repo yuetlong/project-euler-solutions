@@ -2,16 +2,22 @@
 #include <stdlib.h>
 #include <string.h>
 
+int cmpstr(void const *a, void const *b){
+    char const *aa = (char const *) a;
+    char const *bb = (char const *) b;
+    return strcmp(aa, bb);
+}
+
 int main(){
   FILE *stream;
-  stream = fopen("text-files/p022_names.txt","r");
+  stream = fopen("p022_names.txt","r");
   int size = 0;
   char buffer[6000][20];
 
   while (fscanf (stream, "\"%[A-Z]\",", buffer[size++]) == 1){};
   fclose(stream);
 
-  qsort(buffer,size,20,strcmp);
+  qsort(buffer, size, 20, cmpstr);
 
   int namescore[size];
   int sum = 0;
@@ -24,4 +30,5 @@ int main(){
   }
 
   printf("%d\n",sum);
+ 
 }
