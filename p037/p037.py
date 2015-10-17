@@ -1,18 +1,30 @@
 #!/usr/bin/env python3
-from miller_rabin import is_probable_prime
+
+limit = 1000000
+
+
 
 def truncate(n):
+
+    # returns a list of n truncated from left and right
+
     l1 = list( int( str(n)[i:]) for i in range(   len(str(n))))
     l2 = list( int( str(n)[:i]) for i in range(1, len(str(n))))
     return l1 + l2
 
-def sieve(n):
-    multiples = set()
-    for i in range(2, n+1):
-        if i not in multiples:
-            yield i
-            multiples.update(range(i*i, n+1, i))
+# sieve using array lookup
 
-si = sieve(1000000)
-answer = sum (p for p in si if all ( map (is_probable_prime, truncate(p))))
+is_prime = [False] * 2 + [True] * (limit - 1)
+for n in range (int(limit**0.5 + 1.5)):
+	if is_prime[n]:
+		for i in range (n * n, limit + 1, n):
+			is_prime[i] = False
+
+# prime generator
+
+prime_generator = [i for i, prime in enumerate (is_prime) if prime]
+
+# evaluate answer
+
+answer = sum (p for p in prime_generator if all ( map (lambda x: is_prime[x], truncate(p))))
 print(answer - 2 - 3 - 5 - 7)
