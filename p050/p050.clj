@@ -4,14 +4,13 @@
   "Evaluates the prime number that can be written as the sum of most consecutive primes under the value of target."
   []
   (let [target 1000000
-                                        ; search target
+
         reversed-primes (reverse (take-while #(< % target) (lazy-primes)))
-                                        ;a descending realized sequence of primes below target.
         amount (count (take-while #(< % target) (reductions + (lazy-primes))))
                                         ; the amount of primes that is less than target when summed together.
         primes (take amount (lazy-primes))]
                                         ; a sequence of primes in that amount
-    (letfn [(prime? [num] (= num (first (drop-while #(> % num) reversed-primes))))]
+    (letfn [(prime? [n] (some #(= n %) reversed-primes))]
                                         ; a prime checker that implemented linear search on sorted prime sequence.
       (first (filter prime? (map #(reduce + %) (mapcat #(partition % 1 primes) (range amount 1 -1)))))
                                         ; Mapcat generates all possibilities where primes are grouped together.
