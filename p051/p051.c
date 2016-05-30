@@ -34,15 +34,17 @@ int int_pow(int x,int y){
 /* check if a six digit integer has duplicates in the first five digits 
  */
 
-bool has_duplicate_digits(int num){
-    int digit_count[10] = {0};
+bool has_duplicates_012(int num){
+    bool hasDigit[3] = {false};
+    // remember, we are not checking the last digit
     for (int n = 0; n < 5; n++){
         int nth_digit = num / int_pow(10, 5 - n) % 10;
-        digit_count[nth_digit]++;
+        if (nth_digit < 3){
+            if(hasDigit[nth_digit])
+                return true;
+            hasDigit[nth_digit] = true;
+        }
     }
-    for (int i = 0; i < 10; i++)
-        if (digit_count[i] > 1)
-            return true;
     return false;
 }
 
@@ -53,7 +55,7 @@ bool has_duplicate_digits(int num){
  * The first number states the number of elements in the subset, followed by the elements.
  */
 
-int* powerset_2plus(int* arr, int arr_size){
+int* powerset_2plus(int arr[], int arr_size){
     // pow_set_size has the number of possible subsets in the power set
     unsigned int pow_set_size = int_pow(2,arr_size);
     
@@ -78,7 +80,51 @@ int* powerset_2plus(int* arr, int arr_size){
     *powerset_ptr2 = -1;
     return powerset;
 }
-    
+
+
+/* Returns a list of duplicated digits, what they are, and their positions.
+ * The function ignored last digit. The return list ends with -1.
+ */
+int* duplicate_list(int num){
+    int digit_count[10] = {0};
+    int* lst = malloc(sizeof(int) * 50);
+    int* ptr = lst;
+    for (int i = 0; i < 5; i++){
+        digit_count[num / int_pow(10,5-i) % 10]++;
+    }
+    for (int i = 0; i < 10; i++){
+        if (digit_count[i] == 2){
+            *ptr++ = i;
+            *ptr++ = digit_count[i];
+            for (int j = 0; j < 5; j++){
+                if (num / int_pow(10, 5-j) % 10 == i){
+                    *ptr++ = j;
+                }
+            }
+        } else if (digit_count[i] > 2){
+            int ptr2[digit_count[i]];
+            int cnt = 0;;
+            for (int j = 0; j < 5; j++){
+                if (num / int_pow(10, 5-j) % 10 == i){
+                    ptr2[cnt++] = j;
+                }
+            }
+            int* ptr4 = powerset_2plus(ptr2, digit_count[i]);
+            int* ptr4_start = ptr4;
+            while(*ptr4 != -1){
+                *ptr++ = i;
+                *ptr++ = *ptr4++;
+                for (int k = *(ptr4 - 1); k > 0; k--){
+                    *ptr++ = *ptr4++;
+                }
+            }
+            //free(ptr4_start); somebody accessed things in ptr4, can't free it.
+        }
+    }
+    *ptr++ = -1;
+    return lst;
+}
+
 int replace_digit(int old_value, int n, int new_digit){
     int p = int_pow(10, 5 - n);
     int nth_value = old_value / p % 10 * p;
@@ -87,10 +133,42 @@ int replace_digit(int old_value, int n, int new_digit){
 }
 
 int main(){
-    int set[]= {3,2,1};
-    int* powerset = powerset_2plus(set, 3);
-    while(*powerset != -1){
-        printf("%d %p\n", *powerset, powerset);
-        powerset++;
+    
+    int* sieve = is_prime_under(1000000);
+    for (int i = 100000; i < 1000000; i++){
+        if (sieve[i] && has_duplicates_012(i)){
+            int* lst = duplicate_list(i);
+            int* lst_ptr = lst;
+            int cnt = 0;
+            printf("%d ", i);
+            while(*lst != -1){
+                int original_digit = *lst++;
+                int original_number = i;
+                int number_of_digits_to_replace = *lst++;
+                int prime_counter = 1; // i itself is prime
+                while(++original_digit < 10){  
+                    for (int j = number_of_digits_to_replace ; j > 0; j--){
+                        original_number = replace_digit(original_number, *lst++, original_digit);
+                    }
+                    lst -= number_of_digits_to_replace;
+                    printf("%d ", original_number);
+                    if (sieve[original_number]){
+                        prime_counter++;
+                    } else {
+                        continue;
+                    }
+                }
+                if (prime_counter == 8){
+                    printf("%d is the answer. \n", i);
+                    free(lst_ptr);
+                    exit(0);
+                }
+                lst += number_of_digits_to_replace;
+            }
+            printf("\n");
+            free(lst_ptr);
+        }
     }
+    free(sieve);
 }
+
