@@ -50,17 +50,15 @@ bool has_duplicates_012(int num){
 
 /* calculates the power set of an array, where in each subset of the outcome,
  * there is at least two items in it.
- * For instance, if arr[] = {1,2,3}
- * the function returns {2,1,2,2,1,3,2,2,3,3,1,2,3,-1}
- * The first number states the number of elements in the subset, followed by the elements.
+ * The first number states the number of elements in the subset, followed by the number
+ * of the elements. Followed by the elements themselves.
  */
 
-int* powerset_2plus(int arr[], int arr_size){
+void powerset_2plus(int* powerset, int arr[], int arr_size){
     // pow_set_size has the number of possible subsets in the power set
-    unsigned int pow_set_size = int_pow(2,arr_size);
+    int pow_set_size = int_pow(2,arr_size);
     
     //allocate space in heap for return. We are ommiting the empty set and subset with 1 element.
-    int* powerset = malloc(sizeof(int) * (pow_set_size - arr_size));
     int* powerset_ptr1 = powerset + 1;
     int* powerset_ptr2 = powerset;
 
@@ -78,7 +76,6 @@ int* powerset_2plus(int arr[], int arr_size){
         }
     }
     *powerset_ptr2 = -1;
-    return powerset;
 }
 
 
@@ -87,7 +84,7 @@ int* powerset_2plus(int arr[], int arr_size){
  */
 int* duplicate_list(int num){
     int digit_count[10] = {0};
-    int* lst = malloc(sizeof(int) * 50);
+    int* lst = malloc(sizeof(int) * 128);
     int* ptr = lst;
     for (int i = 0; i < 5; i++){
         digit_count[num / int_pow(10,5-i) % 10]++;
@@ -109,7 +106,8 @@ int* duplicate_list(int num){
                     ptr2[cnt++] = j;
                 }
             }
-            int* ptr4 = powerset_2plus(ptr2, digit_count[i]);
+            int* ptr4 = malloc(sizeof(int) * 128);
+            powerset_2plus(ptr4, ptr2, digit_count[i]);
             int* ptr4_start = ptr4;
             while(*ptr4 != -1){
                 *ptr++ = i;
@@ -118,7 +116,7 @@ int* duplicate_list(int num){
                     *ptr++ = *ptr4++;
                 }
             }
-            //free(ptr4_start); somebody accessed things in ptr4, can't free it.
+            free(ptr4_start); 
         }
     }
     *ptr++ = -1;
@@ -140,7 +138,7 @@ int main(){
             int* lst = duplicate_list(i);
             int* lst_ptr = lst;
             int cnt = 0;
-            printf("%d ", i);
+            //printf("%d ", i);
             while(*lst != -1){
                 int original_digit = *lst++;
                 int original_number = i;
@@ -151,7 +149,7 @@ int main(){
                         original_number = replace_digit(original_number, *lst++, original_digit);
                     }
                     lst -= number_of_digits_to_replace;
-                    printf("%d ", original_number);
+                    //printf("%d ", original_number);
                     if (sieve[original_number]){
                         prime_counter++;
                     } else {
@@ -159,16 +157,15 @@ int main(){
                     }
                 }
                 if (prime_counter == 8){
-                    printf("%d is the answer. \n", i);
+                    printf("%d\n", i);
                     free(lst_ptr);
                     exit(0);
                 }
                 lst += number_of_digits_to_replace;
             }
-            printf("\n");
+            //printf("\n");
             free(lst_ptr);
         }
     }
     free(sieve);
 }
-
