@@ -4,8 +4,7 @@
 typedef enum {false, true} bool;
 
 /* is_prime_under() returns an array where arr[i] = true if i is a prime.
- * The array terminates with literal value -1.
- */
+ * The array terminates with literal value -1. */
 
 int* is_prime_under(int limit){
     int* arr = malloc ((limit + 1) * sizeof(int));
@@ -19,8 +18,7 @@ int* is_prime_under(int limit){
     return arr;
 }
 
-/* quick implementation of pow for integer.
- */
+/* quick implementation of pow for integer. */
 
 int int_pow(int x,int y){
     int x2 = 1;
@@ -31,8 +29,7 @@ int int_pow(int x,int y){
     return x2;
 }
 
-/* check if a six digit integer has duplicates in the first five digits 
- */
+/* Returns true if a six digit integer (the first argument) has duplicate digits 0,1,2 within the first five digits, false otherwise. */
 
 bool has_duplicates_012(int num){
     bool hasDigit[3] = {false};
@@ -48,11 +45,13 @@ bool has_duplicates_012(int num){
     return false;
 }
 
-/* calculates the power set of an array, where in each subset of the outcome,
- * there is at least two items in it.
- * The first number states the number of elements in the subset, followed by the number
- * of the elements. Followed by the elements themselves.
- */
+/* Generates a permutation of all possible subsets of an array where the subsets have at least two elements.
+ * Within a subset, the first number states the number of elements in the subset, followed by the elements themselves.
+ * The array terminates at -1.
+ * 
+ * For instance: arr[] = {1,2,3}
+ *               there will be 4 subsets, (length 2) {1,2}, (length 2) {1,3}, (length 2) {2,3},(length 3) {1,2,3} 
+ *               powerset[] = {2,1,2,2,1,3,2,2,3,3,1,2,3} */
 
 void powerset_2plus(int* powerset, int arr[], int arr_size){
     // pow_set_size has the number of possible subsets in the power set
@@ -78,10 +77,19 @@ void powerset_2plus(int* powerset, int arr[], int arr_size){
     *powerset_ptr2 = -1;
 }
 
-
 /* Returns a list of duplicated digits, what they are, and their positions.
- * The function ignored last digit. The return list ends with -1.
- */
+ * For instance, say the first argument is 111223.
+ * It has 3 duplicates of digit 1 at position 0 1 2, and 2 duplicates of digit 2 at position 3 4.
+ * The possible permutations of raising the digits are:
+ *
+ * (2 digits) (digit itself is 1) (position 0) (position 1)
+ * (2 digits) (digit itself is 1) (position 1) (position 2)
+ * (2 digits) (digit itself is 1) (position 0) (position 2)
+ * (3 digits) (digit itself is 1) (position 0) (position 1) (position 2)
+ * (2 digits) (digit itself is 2) (position 3) (position 4)
+ *
+ * The function ignored last digit. The return list ends with -1. */
+
 int* duplicate_list(int num){
     int digit_count[10] = {0};
     int* lst = malloc(sizeof(int) * 128);
@@ -109,6 +117,13 @@ int* duplicate_list(int num){
             int* ptr4 = malloc(sizeof(int) * 128);
             powerset_2plus(ptr4, ptr2, digit_count[i]);
             int* ptr4_start = ptr4;
+
+            /* printout of the powerset2+ array from the function 
+            while(*ptr4 != -1) printf("%d ",*ptr4++);
+            printf("\n");
+            ptr4 = ptr4_start;
+            */
+
             while(*ptr4 != -1){
                 *ptr++ = i;
                 *ptr++ = *ptr4++;
@@ -123,6 +138,8 @@ int* duplicate_list(int num){
     return lst;
 }
 
+/* replace the nth digit of the integer old_value with new_digit */
+
 int replace_digit(int old_value, int n, int new_digit){
     int p = int_pow(10, 5 - n);
     int nth_value = old_value / p % 10 * p;
@@ -130,26 +147,36 @@ int replace_digit(int old_value, int n, int new_digit){
     return old_value - nth_value + new_nth_value;
 }
 
+/* This is where everything were put together.
+ * Simply, we filter out the six digit primes with duplicate 012s.
+ * These are the contestents. For every possible way a contestent can raise duplicate digits,
+ * we raised them and see if we can have 8 primes in total.
+ */
+
 int main(){
-    
     int* sieve = is_prime_under(1000000);
     for (int i = 100000; i < 1000000; i++){
         if (sieve[i] && has_duplicates_012(i)){
             int* lst = duplicate_list(i);
             int* lst_ptr = lst;
             int cnt = 0;
-            //printf("%d ", i);
+            
+            // printf("%d ", i);
+            // print out the contestent
+
             while(*lst != -1){
                 int original_digit = *lst++;
                 int original_number = i;
                 int number_of_digits_to_replace = *lst++;
-                int prime_counter = 1; // i itself is prime
+                int prime_counter = 1; // i itself is prime, that is why we count from 1
                 while(++original_digit < 10){  
                     for (int j = number_of_digits_to_replace ; j > 0; j--){
                         original_number = replace_digit(original_number, *lst++, original_digit);
                     }
                     lst -= number_of_digits_to_replace;
-                    //printf("%d ", original_number);
+
+                     //printf("%d\n", original_number);
+
                     if (sieve[original_number]){
                         prime_counter++;
                     } else {
@@ -163,7 +190,6 @@ int main(){
                 }
                 lst += number_of_digits_to_replace;
             }
-            //printf("\n");
             free(lst_ptr);
         }
     }
